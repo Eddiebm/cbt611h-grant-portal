@@ -478,29 +478,21 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('')
   const [loaded, setLoaded] = useState(false)
 
-  // Load from storage
+  // Load from localStorage
   useEffect(() => {
-    const load = async () => {
-      try {
-        const saved = await window.storage.get('cbt611h-portal-state')
-        if (saved?.value) {
-          setState(JSON.parse(saved.value))
-        }
-      } catch {}
-      setLoaded(true)
-    }
-    load()
+    try {
+      const saved = localStorage.getItem('cbt611h-portal-state')
+      if (saved) setState(JSON.parse(saved))
+    } catch {}
+    setLoaded(true)
   }, [])
 
-  // Save to storage on change
+  // Save to localStorage on change
   useEffect(() => {
     if (!loaded) return
-    const save = async () => {
-      try {
-        await window.storage.set('cbt611h-portal-state', JSON.stringify(state))
-      } catch {}
-    }
-    save()
+    try {
+      localStorage.setItem('cbt611h-portal-state', JSON.stringify(state))
+    } catch {}
   }, [state, loaded])
 
   const updateChange = useCallback((docId: string, changeId: string, status: ChangeStatus) => {
@@ -531,7 +523,7 @@ export default function App() {
 
   const resetAll = useCallback(async () => {
     setState({ documents: INITIAL_DOCUMENTS, overallScore: SCORE_DATA.current, projectedScore: SCORE_DATA.projected, lastUpdated: new Date().toISOString() })
-    try { await window.storage.delete('cbt611h-portal-state') } catch {}
+    try { localStorage.removeItem('cbt611h-portal-state') } catch {}
   }, [])
 
   const totalChanges = state.documents.reduce((sum, d) => sum + d.changes.length, 0)
